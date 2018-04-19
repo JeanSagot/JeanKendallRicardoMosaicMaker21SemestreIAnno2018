@@ -6,24 +6,58 @@ import java.awt.Toolkit;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import domain.Cuadricula;
+import domain.ImageGrid;
+import java.awt.Graphics;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javafx.scene.shape.Mesh;
 /**
  *
  * @author jeanp
  */
-public class MainFrame extends javax.swing.JFrame {
+public class MainFrame extends javax.swing.JFrame{
     
-    private FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Imagen archivos", "jpg");
-    String  imageRoute;
-    
+    private FileNameExtensionFilter fileFilter;
+    JFileChooser jfc;
+   
     public MainFrame() {
         initComponents();
         //centrar el frame
         this.setLocationRelativeTo(null);
         
-        
+        fileFilter = new FileNameExtensionFilter("Imagen archivos", "jpg");
+        jtf_insertColumns.setEnabled(false);
+        jtf_insertRows.setEnabled(false);
+        jb_dissectImage.setEnabled(false);
 
+        //verificacion de insertColumns
+        jtf_insertColumns.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                char caracter = e.getKeyChar();
+
+                // Verificar si la tecla pulsada no es un digito
+                if (((caracter < '0')
+                        || (caracter > '9'))
+                        && (caracter != '\b' /*corresponde a BACK_SPACE*/)) {
+                    e.consume();  // ignorar el evento de teclado
+                }
+            }
+        });
+
+        //verificacion de insertRows
+        jtf_insertRows.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char caracter = e.getKeyChar();
+
+                // Verificar si la tecla pulsada no es un digito
+                if (((caracter < '0')
+                        || (caracter > '9'))
+                        && (caracter != '\b' /*corresponde a BACK_SPACE*/)) {
+                    e.consume();  // ignorar el evento de teclado
+                }
+            }
+        });
     }
     
     //metodo para retornar el valor y poder cambiar el icono del frame
@@ -35,7 +69,6 @@ public class MainFrame extends javax.swing.JFrame {
 
         return retValue;
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -51,7 +84,16 @@ public class MainFrame extends javax.swing.JFrame {
         jb_minimize = new javax.swing.JButton();
         js_separator = new javax.swing.JSeparator();
         jl_showImage1 = new javax.swing.JLabel();
-        jl_showImage = new javax.swing.JLabel();
+        jtf_insertRows = new javax.swing.JTextField();
+        jl_rows = new javax.swing.JLabel();
+        jl_columns = new javax.swing.JLabel();
+        jtf_insertColumns = new javax.swing.JTextField();
+        jb_dissectImage = new javax.swing.JButton();
+        jp_loadedImage = new javax.swing.JPanel();
+        jb_rotateImg = new javax.swing.JButton();
+        jb_flipH = new javax.swing.JButton();
+        jb_flipV = new javax.swing.JButton();
+        jb_eraseImg3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setIconImage(getIconImage());
@@ -63,6 +105,7 @@ public class MainFrame extends javax.swing.JFrame {
         jb_addImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/icons8_Add_Image_50px_1.png"))); // NOI18N
         jb_addImage.setBorderPainted(false);
         jb_addImage.setContentAreaFilled(false);
+        jb_addImage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jb_addImage.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jb_addImageMouseClicked(evt);
@@ -78,6 +121,7 @@ public class MainFrame extends javax.swing.JFrame {
         jb_close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/icons8_Delete_25px.png"))); // NOI18N
         jb_close.setBorderPainted(false);
         jb_close.setContentAreaFilled(false);
+        jb_close.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jb_close.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jb_closeActionPerformed(evt);
@@ -88,6 +132,7 @@ public class MainFrame extends javax.swing.JFrame {
         jb_minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/icons8_Minimize_Window_25px.png"))); // NOI18N
         jb_minimize.setBorderPainted(false);
         jb_minimize.setContentAreaFilled(false);
+        jb_minimize.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jb_minimize.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jb_minimizeActionPerformed(evt);
@@ -96,13 +141,63 @@ public class MainFrame extends javax.swing.JFrame {
         jp_mainPanel.add(jb_minimize, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 0, 30, 30));
 
         js_separator.setOrientation(javax.swing.SwingConstants.VERTICAL);
-        jp_mainPanel.add(js_separator, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 20, 10, 650));
+        jp_mainPanel.add(js_separator, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 10, 10, 650));
 
         jl_showImage1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jp_mainPanel.add(jl_showImage1, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 70, 450, 520));
+        jp_mainPanel.add(jl_showImage1, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 30, 480, 600));
+        jp_mainPanel.add(jtf_insertRows, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 630, 80, 30));
 
-        jl_showImage.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jp_mainPanel.add(jl_showImage, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 70, 450, 520));
+        jl_rows.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jl_rows.setText("Filas:");
+        jp_mainPanel.add(jl_rows, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 630, 70, 30));
+
+        jl_columns.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jl_columns.setText("Columnas:");
+        jp_mainPanel.add(jl_columns, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 630, 90, 30));
+        jp_mainPanel.add(jtf_insertColumns, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 630, 80, 30));
+
+        jb_dissectImage.setText("Aceptar");
+        jb_dissectImage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jp_mainPanel.add(jb_dissectImage, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 630, -1, 30));
+
+        jp_loadedImage.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        javax.swing.GroupLayout jp_loadedImageLayout = new javax.swing.GroupLayout(jp_loadedImage);
+        jp_loadedImage.setLayout(jp_loadedImageLayout);
+        jp_loadedImageLayout.setHorizontalGroup(
+            jp_loadedImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 478, Short.MAX_VALUE)
+        );
+        jp_loadedImageLayout.setVerticalGroup(
+            jp_loadedImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 558, Short.MAX_VALUE)
+        );
+
+        jp_mainPanel.add(jp_loadedImage, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, 480, 560));
+
+        jb_rotateImg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/icons8_Rotate_Right_40px.png"))); // NOI18N
+        jb_rotateImg.setBorderPainted(false);
+        jb_rotateImg.setContentAreaFilled(false);
+        jb_rotateImg.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jp_mainPanel.add(jb_rotateImg, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 70, 70, 50));
+
+        jb_flipH.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/icons8_Flip_Horizontal_40px.png"))); // NOI18N
+        jb_flipH.setBorderPainted(false);
+        jb_flipH.setContentAreaFilled(false);
+        jb_flipH.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jp_mainPanel.add(jb_flipH, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 130, 70, 50));
+
+        jb_flipV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/icons8_Flip_Vertical_40px.png"))); // NOI18N
+        jb_flipV.setBorderPainted(false);
+        jb_flipV.setContentAreaFilled(false);
+        jb_flipV.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jp_mainPanel.add(jb_flipV, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 210, 70, 50));
+
+        jb_eraseImg3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/icons8_Eraser_40px.png"))); // NOI18N
+        jb_eraseImg3.setBorderPainted(false);
+        jb_eraseImg3.setContentAreaFilled(false);
+        jb_eraseImg3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jp_mainPanel.add(jb_eraseImg3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 300, 70, 50));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -112,42 +207,30 @@ public class MainFrame extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jp_mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jp_mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 672, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jb_addImageMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jb_addImageMouseClicked
-        JFileChooser jfc = new JFileChooser();
+        jfc = new JFileChooser();
         jfc.setFileFilter(fileFilter);
+        ImageGrid imgGrid = new ImageGrid();
+        
         
         //abrir dialogo para escojer las imagenenes
         int option = jfc.showOpenDialog(this);
         
         //cuando se da click al boton
         if(option==JFileChooser.APPROVE_OPTION){
-            //ibbtener el nombre del archivo que se selecciono
-            String getFileName=jfc.getSelectedFile().getPath();
+            imgGrid.loadImage(jp_loadedImage.getGraphics());
             
-            //direccion donde se guardara la imagen
-            String getFileDirection = jfc.getSelectedFile().toString();
-            jl_showImage.setIcon(new ImageIcon(getFileName));
-            ImageIcon icon = new ImageIcon(getFileName);
-            //obtiene la imagen del icono
-            Image img = icon.getImage();
-            //cambia el tamaño de la imagen 
-            Image newImg = img.getScaledInstance(jl_showImage.getWidth(), jl_showImage.getHeight(), Image.SCALE_SMOOTH);
-            ImageIcon newIcon = new ImageIcon(newImg);
-            
-            //se pone la nueva imagen en el label
-            jl_showImage.setIcon(newIcon);
-            jl_showImage.setSize(155,175);
-            //jl_showImage.setText(getFileName);
-            
-            imageRoute="";
-            
-            
+            jtf_insertColumns.setEnabled(true);
+            jtf_insertRows.setEnabled(true);
+            jb_dissectImage.setEnabled(true);
         }
         
         
@@ -207,10 +290,19 @@ public class MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jb_addImage;
     private javax.swing.JButton jb_close;
+    private javax.swing.JButton jb_dissectImage;
+    private javax.swing.JButton jb_eraseImg3;
+    private javax.swing.JButton jb_flipH;
+    private javax.swing.JButton jb_flipV;
     private javax.swing.JButton jb_minimize;
-    private javax.swing.JLabel jl_showImage;
+    private javax.swing.JButton jb_rotateImg;
+    private javax.swing.JLabel jl_columns;
+    private javax.swing.JLabel jl_rows;
     private javax.swing.JLabel jl_showImage1;
+    private javax.swing.JPanel jp_loadedImage;
     private javax.swing.JPanel jp_mainPanel;
     private javax.swing.JSeparator js_separator;
+    private javax.swing.JTextField jtf_insertColumns;
+    private javax.swing.JTextField jtf_insertRows;
     // End of variables declaration//GEN-END:variables
 }
